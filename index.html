@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwNzgxNTYxODE2NjE5MzUzNjY2OSIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzY0ODdkNjE1YjlkNDRhNGFfaW5kZXguaHRtbC00OCJ9LCJleHAiOjE3OTI5MjQxODUsImlhdCI6MTc5MjkyMDU4NSwiYWxnIjoiUlMyNTYifQ.eil9ws371_Daiv39WO3R0MzKG8Wzb29MeFC7v5JeFrKY0gM7ZwrOg8mo76kFyZQpDiOKkMw1rgT-UB_drRKyWtZDXfQiH-uGwW9_RGSAAM8n5fgkBvbpMYkLVFhHMlB3sAI_MHTN11Cx0lNr2hK7chYaKLnOj6DeVh5gKWmxwVh9nZ1Tnc6NBKtWoqoKesAsLm13QG8V_tp3KJ8hOY2RoVt7qAwj1636u57Mn0gulzSPlAc_oor2KotHEe4AHd34mCRP6UniBr4Y69x6JJDW83MaKLYpU7ENAM6zgHfUm6ZJA0NxBwWpAncTfyF9rZlsi8ylanXH0-juUm92gNBGOw","c_6487d615b9d44a4a_index.html-48")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.j=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.i="";var l=0,t=null,r=null,q=[],F=new TextEncoder,G=new TextDecoder;
+c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*16|0;return(f===
+"x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;(g=t)==null||g.postMessage(a)}};
+Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>واحة التوكيد - رحلة فارسات اللغة (الصف الثاني عشر)</title>
+  
+  <!-- تصميم متكامل وأنيق ومستقل كلياً يعمل بدون إنترنت Offline 100% -->
+  <style>
+    /* خطوط عربية نظامية مدمجة لا تتطلب إنترنت */
+    :root {
+      --font-main: 'Segoe UI', Tahoma, 'Cairo', 'Arial', sans-serif;
+      --font-serif: 'Traditional Arabic', 'Amiri', 'Times New Roman', serif;
+      --bg-dark: #0a0d14;
+      --card-bg: rgba(22, 30, 49, 0.92);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --gold: #f59e0b;
+      --gold-light: #fbbf24;
+      --emerald: #10b981;
+      --emerald-dark: #064e3b;
+      --purple: #8b5cf6;
+      --rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: radial-gradient(circle at 80% 20%, #1e1b4b 0%, #0f172a 45%, #030712 100%);
+      min-height: 100vh;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .arabic-quote {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: bold;
+      line-height: 1.8;
+    }
+
+    /* كروت زجاجية أنيقة */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    /* رأس الصفحة */
+    header {
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 12px 20px;
+    }
+
+    .header-content {
+      max-width: 1050px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f59e0b, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+    }
+
+    .logo-title h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      background: linear-gradient(to left, #fef08a, #6ee7b7, #c4b5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-title p {
+      font-size: 0.75rem;
+      color: #cbd5e1;
+    }
+
+    /* شريط المؤشرات الحي */
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #030712;
+      padding: 6px 16px;
+      border-radius: 14px;
+      border: 1px solid #334155;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 18px;
+      background: #334155;
+    }
+
+    /* الحاوية الرئيسية */
+    main {
+      flex: 1;
+      max-width: 950px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* شاشات اللعبة */
+    .screen {
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* شاشة البداية */
+    .welcome-card {
+      text-align: center;
+      padding: 35px 25px;
+      max-width: 760px;
+      margin: auto;
+      border-top: 4px solid var(--gold);
+    }
+
+    .crown-badge {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 16px;
+      background: rgba(139, 92, 246, 0.2);
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulseGlow 2.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); transform: scale(1); }
+      50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.7); transform: scale(1.04); }
+    }
+
+    .grid-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+      text-align: right;
+    }
+
+    .feature-box {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 14px;
+      border-radius: 14px;
+    }
+
+    .feature-box h4 {
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feature-box p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* إدخال الاسم */
+    .input-wrapper {
+      max-width: 380px;
+      margin: 0 auto 20px;
+      text-align: right;
+    }
+
+    .input-wrapper label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+
+    .name-input {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 14px;
+      background: #0f172a;
+      border: 2px solid #334155;
+      color: #fde047;
+      font-weight: bold;
+      font-size: 1rem;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .name-input:focus {
+      border-color: var(--gold);
+    }
+
+    /* الأزرار */
+    .btn-primary {
+      background: linear-gradient(135deg, #f59e0b, #10b981);
+      color: #030712;
+      border: none;
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 14px 34px;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.45);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.9);
+      color: #e2e8f0;
+      border: 1px solid #475569;
+      font-weight: bold;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #334155;
+    }
+
+    /* شريط التقدم */
+    .progress-section {
+      padding: 14px 20px;
+      margin-bottom: 16px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #0f172a;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to left, var(--emerald), var(--gold));
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* بطاقة السؤال */
+    .question-card {
+      padding: 26px;
+    }
+
+    .badge-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .skill-badge {
+      background: rgba(139, 92, 246, 0.2);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    .points-badge {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .question-text {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 14px;
+    }
+
+    .quote-box {
+      background: #0b1120;
+      border-right: 4px solid var(--gold);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+      color: #fef08a;
+    }
+
+    /* حاوية خيارات الإجابة */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 680px) {
+      .options-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .option-btn {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #334155;
+      padding: 14px 16px;
+      border-radius: 14px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: right;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #1e293b;
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .option-marker {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #0f172a;
+      color: var(--gold);
+      border: 1px solid #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* حالات الإجابة */
+    .option-btn.correct-choice {
+      background: rgba(6, 78, 59, 0.8) !important;
+      border-color: #10b981 !important;
+      color: #a7f3d0 !important;
+    }
+
+    .option-btn.wrong-choice {
+      background: rgba(136, 19, 55, 0.8) !important;
+      border-color: #f43f5e !important;
+      color: #fecdd3 !important;
+    }
+
+    /* بطاقة التغذية الراجعة */
+    .feedback-panel {
+      margin-top: 20px;
+      padding: 16px 20px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-panel.success {
+      background: rgba(6, 78, 59, 0.55);
+      border-color: #059669;
+    }
+
+    .feedback-panel.danger {
+      background: rgba(136, 19, 55, 0.55);
+      border-color: #e11d48;
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .feedback-panel.success .feedback-header { color: #34d399; }
+    .feedback-panel.danger .feedback-header { color: #fb7185; }
+
+    .feedback-text {
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+
+    .feedback-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    /* شاشة النتيجة النهائية والتتويج */
+    .result-card {
+      text-align: center;
+      padding: 35px 24px;
+      max-width: 680px;
+      margin: auto;
+      border-top: 4px solid var(--emerald);
+    }
+
+    .stats-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      background: #0b1120;
+      padding: 16px;
+      border-radius: 14px;
+      margin: 20px 0;
+      border: 1px solid #1e293b;
+    }
+
+    @media (min-width: 500px) {
+      .stats-summary-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .sum-box span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .sum-box strong {
+      font-size: 1.1rem;
+    }
+
+    .skills-learned-box {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid #334155;
+      padding: 16px;
+      border-radius: 14px;
+      text-align: right;
+      font-size: 0.85rem;
+      margin-bottom: 22px;
+    }
+
+    .skills-learned-box h4 {
+      color: var(--gold);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .skills-learned-box ul {
+      list-style: none;
+      padding-right: 0;
+    }
+
+    .skills-learned-box li {
+      margin-bottom: 6px;
+      color: #cbd5e1;
+    }
+
+    .skills-learned-box li strong {
+      color: #6ee7b7;
+    }
+
+    /* إشعار النسخ المباشر */
+    .toast-box {
+      margin-top: 14px;
+      background: rgba(6, 78, 59, 0.85);
+      border: 1px solid #10b981;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: #a7f3d0;
+      display: inline-block;
+    }
+
+    /* Canvas الخاص بالقصاصات المدمجة */
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* تذييل الصفحة */
+    footer {
+      text-align: center;
+      padding: 14px;
+      font-size: 0.75rem;
+      color: #64748b;
+      border-top: 1px solid #1e293b;
+      background: #030712;
+    }
+
+    /* أيقونات SVG النقية المدمجة */
+    .svg-icon {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- كانفاس القصاصات المدمج للاحتفال بدون أي مكتبات خارجية -->
+  <canvas id="confettiCanvas" width="948" height="828"></canvas>
+
+  <!-- شريط الملاحة العلوي المتقدم -->
+  <header>
+    <div class="header-content">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <!-- أيقونة جوهرة مدمجة -->
+          <svg class="svg-icon" style="width:24px; height:24px; color:#ffffff;" viewBox="0 0 24 24">
+            <path d="M12 2L2 8.5L5.8 21.5L18.2 21.5L22 8.5L12 2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+            <path d="M2 8.5H22M5.8 21.5L10 8.5M18.2 21.5L14 8.5M12 2L10 8.5M12 2L14 8.5" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+          </svg>
+        </div>
+        <div class="logo-title">
+          <h1>واحة التوكيد: رحلة فارسات الثاني عشر</h1>
+          <p>اللغة العربية • كفايات وتدريبات بنك أسئلة التوكيد النحوي (Offline جاهزة للفلاش)</p>
+        </div>
+      </div>
+
+      <!-- إحصائيات اللاعبة أثناء اللعب -->
+      <div id="statsBar" class="stats-bar hidden">
+        <div class="stat-item" style="color:#fbbf24;">
+          <svg class="svg-icon" style="color:#f59e0b;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"></circle><circle cx="12" cy="12" r="5" fill="currentColor"></circle></svg>
+          <span id="playerScore">0</span>
+          <span style="font-size:0.75rem; font-weight:normal; color:#94a3b8;">نقطة</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" style="color:#fb7185;">
+          <svg class="svg-icon" style="color:#f43f5e;" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"></path></svg>
+          <span id="playerLives">3</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" style="color:#34d399;">
+          <svg class="svg-icon" style="color:#10b981;" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 12 15 15 12 22 9 15 2 12 9 9" fill="none" stroke="currentColor" stroke-width="2"></polygon></svg>
+          <span id="stageLabel">المرحلة 1</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- الحاوية التفاعلية الرئيسية -->
+  <main>
+
+    <!-- 1. شاشة البداية والترحيب وحفظ اللعبة -->
+    <div id="screenWelcome" class="screen glass-card welcome-card">
+      <div class="crown-badge">
+        <svg class="svg-icon" style="width:36px; height:36px; color:#fbbf24;" viewBox="0 0 24 24">
+          <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM19 19C19 19.55 18.55 20 18 20H6C5.45 20 5 19.55 5 19V18H19V19Z" fill="currentColor"></path>
+        </svg>
+      </div>
+
+      <h2 style="font-size:1.8rem; font-weight:900; margin-bottom:10px;">أهلاً بكِ في تحدي فارسات اللغة! 👑</h2>
+      <p style="color:#cbd5e1; font-size:0.92rem; max-width:620px; margin:0 auto 20px;">
+        مرحباً بكِ يا طالبة الثاني عشر المتميزة. رحلتكِ هذه مصممة خصيصاً لاستيعاب كامل مهارات التوكيد اللفظي والمعنوي، الضبط النحوي، كشف الفروق الدقيقة، وتصويب الأخطاء استناداً إلى تدريبات المنهج.
+      </p>
+
+      <div class="grid-features">
+        <div class="feature-box">
+          <h4 style="color:#fbbf24;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor"></path></svg>
+            5 محطات تدريبية
+          </h4>
+          <p>تدرج من استخراج الكنوز وضبط التوابع وصولاً إلى عرش الإعراب التفصيلي.</p>
+        </div>
+        <div class="feature-box">
+          <h4 style="color:#34d399;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"></path></svg>
+            تغذية راجعة فورية
+          </h4>
+          <p>تعليل نحوي فوري ودقيق يرسخ قواعد المثنى وجمع المذكر السالم وأحكام الإضافة.</p>
+        </div>
+        <div class="feature-box">
+          <h4 style="color:#60a5fa;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z" fill="currentColor"></path></svg>
+            جاهزة للفلاش ميموري
+          </h4>
+          <p>تعمل 100% بدون أي اتصال بالإنترنت في الفصل الدراسي أو المعمل المدرسي.</p>
+        </div>
+      </div>
+
+      <!-- إدخال الاسم -->
+      <div class="input-wrapper">
+        <label for="studentNameInput">اكتبي اسمكِ الكريم لبدء التحدي:</label>
+        <input type="text" id="studentNameInput" class="name-input" placeholder="اسم الفارسة المبدعة...">
+      </div>
+
+      <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+        <button id="btnStartGame" class="btn-primary">
+          <span>انطلقي في الرحلة الآن</span>
+          <svg class="svg-icon" style="transform: rotate(180deg);" viewBox="0 0 24 24"><path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42L16.86 11H5v2z" fill="currentColor"></path></svg>
+        </button>
+
+        <!-- زر الحفظ المباشر للفلاش ميموري -->
+        <button id="btnDownloadForFlash" class="btn-secondary" title="حفظ نسخة كاملة للتشغيل دون نت" style="background: linear-gradient(135deg, #1e293b, #0f172a); border: 1.5px solid #10b981; color: #6ee7b7; padding: 12px 22px; font-weight: bold; border-radius: 14px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z" fill="currentColor"></path></svg>
+          <span>💾 تحميل اللعبة مباشرة لجهازك / الفلاش (Offline 100%)</span>
+        </button>
+      </div>
+
+      <!-- إرشادات سريعة للمعلمة لنقل الملف للفلاش -->
+      <div style="margin-top: 18px; padding: 10px 16px; background: rgba(15, 23, 42, 0.6); border: 1px dashed #334155; border-radius: 12px; font-size: 0.8rem; color: #94a3b8; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+        💡 <strong>خطوة واحدة للنقل على الفلاش:</strong> اضغطي على زر "تحميل اللعبة مباشرة" أعلاه، ثم انقلي الملف المحمّل فوراً إلى الفلاش ميموري. اللعبة تعمل بدون إنترنت على جميع الشاشات وأجهزة المدرسة.
+      </div>
+    </div>
+
+    <!-- 2. شاشة السؤال ومجريات التحدي -->
+    <div id="screenGame" class="screen hidden">
+      
+      <!-- شريط المرحلة والتقدم -->
+      <div class="glass-card progress-section">
+        <div class="progress-meta">
+          <span style="font-weight:bold; color:#fde047; display:flex; align-items:center; gap:6px;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z" fill="currentColor"></path></svg>
+            <span id="currentStageTitle">المحطة الأولى: استكشاف كنز التوكيد</span>
+          </span>
+          <span style="color:#94a3b8; font-size:0.8rem;">
+            السؤال <strong id="currentQuestionNum" style="color:#fff;">1</strong> من <strong id="totalQuestionsNum">15</strong>
+          </span>
+        </div>
+        <div class="progress-track">
+          <div id="progressBar" class="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- بطاقة السؤال -->
+      <div class="glass-card question-card">
+        <div class="badge-bar">
+          <span id="badgeSkill" class="skill-badge">التمييز بين التوكيد اللفظي والمعنوي</span>
+          <span class="points-badge">+<span id="qPoints">100</span> نقطة</span>
+        </div>
+
+        <h3 id="questionPrompt" class="question-text">
+          استخرجي التوكيد اللفظي من العبارة التالية:
+        </h3>
+
+        <div id="quoteBox" class="quote-box arabic-quote">
+          «المتسابقان كلاهما بدأ السباق وكل منهما يقول: سأفوز سأفوز، ورأيت المشاهدين جميعهم بالمباراة نفسها»
+        </div>
+
+        <!-- حاوية الخيارات -->
+        <div id="optionsContainer" class="options-grid"></div>
+
+        <!-- بطاقة التغذية الراجعة والتعليل النحوي -->
+        <div id="feedbackCard" class="feedback-panel hidden">
+          <div class="feedback-header">
+            <span id="feedbackIcon"></span>
+            <span id="feedbackTitle">أحسنتِ يا فارسة القواعد!</span>
+          </div>
+          <p id="feedbackExplanation" class="feedback-text"></p>
+          <div class="feedback-footer">
+            <button id="btnNextQuestion" class="btn-primary" style="padding:10px 22px; font-size:0.9rem;">
+              <span>السؤال التالي</span>
+              <svg class="svg-icon" style="transform: rotate(180deg);" viewBox="0 0 24 24"><path d="M5 13h11.86l-5.43 5.43 1.42 1.42L21.14 12l-8.29-8.29-1.42 1.42L16.86 11H5v2z" fill="currentColor"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. شاشة التتويج والنتائج النهائية -->
+    <div id="screenResult" class="screen glass-card result-card hidden">
+      <div class="crown-badge" style="width:78px; height:78px; border-color:var(--emerald);">
+        <svg class="svg-icon" style="width:42px; height:42px; color:#34d399;" viewBox="0 0 24 24">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="currentColor"></path>
+        </svg>
+      </div>
+
+      <h2 id="resultTitle" style="font-size:1.6rem; font-weight:900; margin-bottom:8px;">مبارك التتويج يا بطلة التوكيد! 🎉</h2>
+      <p id="resultSubtitle" style="color:#cbd5e1; font-size:0.9rem; margin-bottom:16px;">
+        لقد أنهيتِ رحلة واحة التوكيد بحصيلة لغوية رفيعة ومطابقة لمعايير الصف الثاني عشر.
+      </p>
+
+      <div class="stats-summary-grid">
+        <div class="sum-box">
+          <span>الفارسة</span>
+          <strong id="resPlayerName" style="color:#fde047;">طالبة العلم</strong>
+        </div>
+        <div class="sum-box">
+          <span>مجموع النقاط</span>
+          <strong id="resScore" style="color:#34d399;">0</strong>
+        </div>
+        <div class="sum-box">
+          <span>نسبة الدقة</span>
+          <strong id="resAccuracy" style="color:#818cf8;">0%</strong>
+        </div>
+        <div class="sum-box">
+          <span>الرتبة اللغوية</span>
+          <strong id="resRank" style="color:#fbbf24; font-size:0.95rem;">أميرة النحو</strong>
+        </div>
+      </div>
+
+      <!-- ملخص المهارات المستفادة من تدريبات الملف -->
+      <div class="skills-learned-box">
+        <h4>
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" fill="currentColor"></path></svg>
+          أبرز قواعد التوكيد التي تم ترسيخها خلال الجولة:
+        </h4>
+        <ul>
+          <li>✨ <strong>التوكيد اللفظي:</strong> تكرار اللفظ بعينه (اسماً، أو فعلاً، أو حرفاً مثل "لا لا"، أو جملة).</li>
+          <li>✨ <strong>التوكيد المعنوي:</strong> ألفاظه المشهورة (نفس، عين، كلا، كلتا، كل، جميع، عامة، أجمعون) بشرط اتصال ضمير يعود على المؤكد ويطابقه، وصحة حذفه.</li>
+          <li>✨ <strong>التبعية في الإعراب:</strong> التوكيد تابع؛ يرفع إذا كان المؤكد مرفوعاً، وينصب إذا كان منصوباً، ويجر إذا كان مجروراً.</li>
+          <li>✨ <strong>التفريق النحوي الدقيق:</strong> (جميعاً) دون ضمير تُعرب حالاً منصوبة، و(نفس) إذا سبقت الاسم تعرب بحسب موقعها (فاعل/مفعول).</li>
+          <li>✨ <strong>ملحقات المثنى وجمع المذكر:</strong> (كلا وكلتا) ترفعان بالألف وتُنصبان وتُجران بالياء إذا أضيفتا لضمير، و(أجمعون) تعامل معاملة جمع المذكر السالم.</li>
+        </ul>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:12px;">
+        <button id="btnRestartGame" class="btn-primary" style="padding:12px 24px; font-size:0.9rem;">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" fill="currentColor"></path></svg>
+          <span>خوض التحدي من جديد</span>
+        </button>
+        <button id="btnShareCertificate" class="btn-secondary" style="padding:12px 20px;">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor"></path></svg>
+          <span>نسخ بطاقة الإنجاز للمعلمة</span>
+        </button>
+      </div>
+
+      <div id="toastMessage" class="toast-box hidden">
+        تم نسخ بطاقة إنجازكِ بنجاح! يمكنكِ لصقها وإرسالها لمعلمتكِ الفاضلة.
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    مادة اللغة العربية للصف الثاني عشر • نشاط واحة التوكيد • ملف مستقل لا يحتاج للإنترنت (Offline Ready)
+  </footer>
+
+  <!-- الأكواد البرمجية المستقلة: الصوتيات، القصاصات، وبنك الأسئلة -->
+  <script>
+    /* 1. نظام القصاصات الورقية المدمج (Canvas Confetti Engine) دون أي روابط خارجية */
+    const ConfettiEngine = {
+      canvas: null,
+      ctx: null,
+      particles: [],
+      animationId: null,
+      init() {
+        this.canvas = document.getElementById('confettiCanvas');
+        if (this.canvas) {
+          this.ctx = this.canvas.getContext('2d');
+          this.resize();
+          window.addEventListener('resize', () => this.resize());
+        }
+      },
+      resize() {
+        if (!this.canvas) return;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+      },
+      fire(count = 50) {
+        if (!this.ctx) return;
+        const colors = ['#f59e0b', '#10b981', '#8b5cf6', '#38bdf8', '#fb7185', '#fef08a'];
+        for (let i = 0; i < count; i++) {
+          this.particles.push({
+            x: window.innerWidth * (0.3 + Math.random() * 0.4),
+            y: window.innerHeight * 0.7,
+            vx: (Math.random() - 0.5) * 12,
+            vy: -(Math.random() * 12 + 6),
+            size: Math.random() * 7 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 15,
+            life: 1,
+            decay: Math.random() * 0.02 + 0.012
+          });
+        }
+        if (!this.animationId) {
+          this.animate();
+        }
+      },
+      animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.35; // الجاذبية
+          p.rotation += p.rotationSpeed;
+          p.life -= p.decay;
+
+          if (p.life <= 0) {
+            this.particles.splice(i, 1);
+            continue;
+          }
+
+          this.ctx.save();
+          this.ctx.translate(p.x, p.y);
+          this.ctx.rotate((p.rotation * Math.PI) / 180);
+          this.ctx.globalAlpha = p.life;
+          this.ctx.fillStyle = p.color;
+          this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.5);
+          this.ctx.restore();
+        }
+
+        if (this.particles.length > 0) {
+          this.animationId = requestAnimationFrame(() => this.animate());
+        } else {
+          this.animationId = null;
+        }
+      }
+    };
+
+    /* 2. نظام التوليد الصوتي الرقمي النقي باستخدام Web Audio API (يعمل بدون ملفات mp3 أو نت) */
+    const SoundEffects = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+      },
+      playTone(freq, type, duration, delay = 0) {
+        this.init();
+        if (!this.ctx) return;
+        setTimeout(() => {
+          try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start();
+            osc.stop(this.ctx.currentTime + duration);
+          } catch(e) {}
+        }, delay);
+      },
+      correct() {
+        this.playTone(523.25, 'sine', 0.12, 0);   // C5
+        this.playTone(659.25, 'sine', 0.15, 120); // E5
+        this.playTone(783.99, 'sine', 0.25, 240); // G5
+      },
+      wrong() {
+        this.playTone(220, 'triangle', 0.18, 0);   // A3
+        this.playTone(196, 'triangle', 0.25, 140); // G3
+      },
+      victory() {
+        [440, 554, 659, 880].forEach((freq, idx) => {
+          this.playTone(freq, 'square', 0.22, idx * 110);
+        });
+      }
+    };
+
+    /* 3. بنك الأسئلة الشامل مستخلص بدقة من كافة صفحات الملف المرفق الأربع */
+    const gameQuestions = [
+      // المرحلة الأولى: استخراج وتمييز التوكيد اللفظي والمعنوي
+      {
+        stage: 1,
+        stageTitle: "المحطة الأولى: استكشاف كنز التوكيد وتحديد نوعه",
+        skill: "استخراج التوكيد من الفقرة وتصنيفه",
+        prompt: "استخرجي التوكيد اللفظي من العبارة التالية الواردة في مسابقة الركض:",
+        quote: "«بدأ المتسابقان كلاهما السباق وكل منهما يقول: سأفوز سأفوز، ورأيت المشاهدين جميعهم بالمباراة نفسها»",
+        options: [
+          { text: "سأفوز (الثانية)", correct: true },
+          { text: "كلاهما", correct: false },
+          { text: "جميعهم", correct: false },
+          { text: "نفسها", correct: false }
+        ],
+        explanation: "«سأفوز» الثانية توكيد لفظي بتكرار الفعل والجملة. أما (كلاهما، جميعهم، نفسها) فكلها ألفاظ توكيد معنوي اتصلت بضمير يعود على المؤكد."
+      },
+      {
+        stage: 1,
+        stageTitle: "المحطة الأولى: استكشاف كنز التوكيد وتحديد نوعه",
+        skill: "استخراج التوكيد المعنوي المرفوع",
+        prompt: "من الفقرة نفسها: عيني «التوكيد المعنوي المرفوع» مبيناً مؤكده:",
+        quote: "«بدأ المتسابقان كلاهما السباق وكل منهما يقول: سأفوز سأفوز، ورأيت المشاهدين جميعهم بالمباراة نفسها»",
+        options: [
+          { text: "كلاهما (لأن المؤكد المتسابقان فاعل مرفوع بالألف)", correct: true },
+          { text: "جميعهم (لأن المؤكد المشاهدين مفعول به)", correct: false },
+          { text: "نفسها (لأن المؤكد المباراة اسم مجرور)", correct: false },
+          { text: "كل منهما (لأنها مبتدأ)", correct: false }
+        ],
+        explanation: "«كلاهما» توكيد معنوي مرفوع بالألف لأنه ملحق بالمثنى، ومؤكده «المتسابقان» فاعل مرفوع بالألف."
+      },
+      {
+        stage: 1,
+        stageTitle: "المحطة الأولى: استكشاف كنز التوكيد وتحديد نوعه",
+        skill: "أنواع التوكيد اللفظي (الحرف والجملة)",
+        prompt: "ما نوع التوكيد في قوله: «لا، لا أقيمُ على الضيمِ»؟ وما الذي تكرر؟",
+        quote: "«لا، لا أقيم على الضيم»",
+        options: [
+          { text: "توكيد لفظي بتكرار الحرف (لا)", correct: true },
+          { text: "توكيد معنوي يفيد النفي", correct: false },
+          { text: "توكيد لفظي بتكرار الجملة الفعلية", correct: false },
+          { text: "حرف عطف يفيد الشك", correct: false }
+        ],
+        explanation: "التوكيد هنا لفظي تحقق بتكرار الحرف نفسه؛ فـ (لا) الثانية توكيد لفظي لحرف النفي الأول."
+      },
+
+      // المرحلة الثانية: الضبط الإعرابي للتوكيد والمؤكد
+      {
+        stage: 2,
+        stageTitle: "المحطة الثانية: ميزان الضبط الإعرابي وحركات التوابع",
+        skill: "ضبط التوكيد المعنوي (كلهم)",
+        prompt: "اضبطي كلمة (كلهم) في جملة: «حضرَ الناسُ ... أجمعون» ضبطاً صحيحاً مع التعليل:",
+        quote: "«حضر الناسُ كلُـ...ـهم أجمعون»",
+        options: [
+          { text: "كلُّهم (بالضمة على اللام)؛ لأن المؤكد (الناسُ) فاعل مرفوع", correct: true },
+          { text: "كلَّهم (بالفتحة على اللام)؛ لأنها تفيد الشمول والاستغراق", correct: false },
+          { text: "كلِّهم (بالكسرة)؛ لمجاورتها لكلمة أجمعون", correct: false },
+          { text: "كلْهم (بالسكون على اللام)", correct: false }
+        ],
+        explanation: "التوكيد تابع يتبع المؤكد في الإعراب، وبما أن المؤكد «الناسُ» فاعل مرفوع بالضمة، فإن توكيده «كلُّهم» يكون مرفوعاً بالضمة على اللام."
+      },
+      {
+        stage: 2,
+        stageTitle: "المحطة الثانية: ميزان الضبط الإعرابي وحركات التوابع",
+        skill: "ضبط توكيد المثنى المؤنث المنصوب",
+        prompt: "ما هو الضبط الصحيح للتوكيد في قولكِ: «رأيتُ الطالبتينِ ...»؟",
+        quote: "«رأيتُ الطالبتينِ أنفسَـ...ـهما»",
+        options: [
+          { text: "أنفُسَهما (بفتح السين)؛ لأن المؤكد مفعول به منصوب", correct: true },
+          { text: "أنفُسُهما (بضم السين)؛ حملاً على الفاعلية", correct: false },
+          { text: "أنفُسِهما (بكسر السين)", correct: false },
+          { text: "نفوسهما (بالتنوين)", correct: false }
+        ],
+        explanation: "«الطالبتينِ» مفعول به منصوب وعلامة نصبه الياء لأنه مثنى، فيكون التوكيد «أنفُسَهما» منصوباً بالفتحة الظاهرة على السين."
+      },
+      {
+        stage: 2,
+        stageTitle: "المحطة الثانية: ميزان الضبط الإعرابي وحركات التوابع",
+        skill: "ضبط التوكيد اللفظي في المبتدأ",
+        prompt: "اضبطي التوكيد اللفظي في مقولة: «الجِدُّ ... طريقُ النجاحِ»:",
+        quote: "«الجِدُّ الجِدُّ طريقُ النجاحِ»",
+        options: [
+          { text: "الجِدُّ (بالضمة الظاهرة على الدال)؛ توكيد للمبتدأ المرفوع", correct: true },
+          { text: "الجِدَّ (بالفتحة) على الإغراء والتحذير", correct: false },
+          { text: "الجِدِّ (بالكسرة)", correct: false },
+          { text: "الجِدْ (بالسكون)", correct: false }
+        ],
+        explanation: "«الجِدُّ» الأولى مبتدأ مرفوع بالضمة، و«الجِدُّ» الثانية توكيد لفظي يتبع المبتدأ في الرفع بالضمة الظاهرة."
+      },
+
+      // المرحلة الثالثة: كشف الفروق الدقيقة (توكيد أم موقع إعرابي آخر؟)
+      {
+        stage: 3,
+        stageTitle: "المحطة الثالثة: رادار الفروق النحوية الدقيقة",
+        skill: "التمييز بين (جميعاً) و(جميعهم)",
+        prompt: "قارني بين الموقع الإعرابي لما تحته خط في الجملتين:\n1. «دخلَ القومُ جميعاً»\n2. «دخلَ القومُ جميعُهم»",
+        quote: "1. دخل القوم جميعاً   |   2. دخل القوم جميعهم",
+        options: [
+          { text: "الأولى (حال منصوبة)، والثانية (توكيد معنوي مرفوع)", correct: true },
+          { text: "كلاهما توكيد معنوي منصوب ومرفوع", correct: false },
+          { text: "الأولى مفعول به، والثانية نعت", correct: false },
+          { text: "الأولى توكيد لفظي، والثانية توكيد معنوي", correct: false }
+        ],
+        explanation: "«جميعاً» المنونة دون ضمير تُعرب حالاً منصوبة دائماً. أما «جميعُهم» فاتصلت بضمير عائد على المؤكد (القوم) وتصح الاستغناء عنها، فتعرب توكيداً معنوياً."
+      },
+      {
+        stage: 3,
+        stageTitle: "المحطة الثالثة: رادار الفروق النحوية الدقيقة",
+        skill: "موقع كلمة (نفس) عند خلوها من التوكيد",
+        prompt: "ما إعراب كلمة «نفس» في قولنا: «جاءَ نفسُ الطالبِ»؟",
+        quote: "«جاءَ نفسُ الطالبِ»",
+        options: [
+          { text: "فاعل مرفوع وعلامة رفعه الضمة الظاهرة", correct: true },
+          { text: "توكيد معنوي مقدم مرفوع", correct: false },
+          { text: "مفعول به مقدم", correct: false },
+          { text: "حال منصوبة", correct: false }
+        ],
+        explanation: "إذا سبقت كلمة (نفس) الاسم وخَلَت من الضمير، أعربت بحسب موقعها في الجملة (هنا فاعل للفعل جاء). وتكون توكيداً لو قيل: «جاء الطالبُ نفسُه»."
+      },
+      {
+        stage: 3,
+        stageTitle: "المحطة الثالثة: رادار الفروق النحوية الدقيقة",
+        skill: "إعراب (كلا) المضافة لاسم ظاهر",
+        prompt: "في جملة: «رأيتُ كلا الرجلينِ»، ما إعراب كلمة (كلا)؟",
+        quote: "«رأيتُ كلا الرجلينِ»",
+        options: [
+          { text: "مفعول به منصوب بفتحة مقدرة على الألف منع من ظهورها التعذر", correct: true },
+          { text: "توكيد معنوي منصوب بالياء لأنه ملحق بالمثنى", correct: false },
+          { text: "فاعل مؤخر مرفوع بالألف", correct: false },
+          { text: "مفعول به منصوب بالياء", correct: false }
+        ],
+        explanation: "«كلا» إذا أضيفت لاسم ظاهر تعرب بحركات مقدرة كالمقصور (هنا مفعول به منصوب بفتحة مقدرة). أما عند إضافتها لضمير فتعرب بالياء أو الألف كملحق بالمثنى."
+      },
+
+      // المرحلة الرابعة: مختبر تصويب الأخطاء النحوية الشائعة
+      {
+        stage: 4,
+        stageTitle: "المحطة الرابعة: مختبر التصويب النحوي لفارسات الثاني عشر",
+        skill: "تصويب خطأ في مطابقة التوكيد للمؤكد المرفوع",
+        prompt: "صوبي الخطأ النحوي في قول المتكلم:\n«نصحني والدي ووالدتي كِلَيْهِما»",
+        quote: "«نصحني والدي ووالدتي كِلَيْهِما» (الجملة بها خطأ في إعراب التوكيد)",
+        options: [
+          { text: "الصواب: كِلاهُما (لأن المعطوف فاعل مرفوع فيتبعه التوكيد بالألف)", correct: true },
+          { text: "الصواب: كِلْتَاهُما (لأن الأم مؤنثة)", correct: false },
+          { text: "الصواب: أجمعين (لأنهم أهل)", correct: false },
+          { text: "الصواب: أنفسهما منصوباً", correct: false }
+        ],
+        explanation: "المؤكد (والدي ووالدتي) فاعل مرفوع ومعطوف عليه مرفوع، ويُغلب المذكر، فيجب أن يتبعهما التوكيد بالرفع بالألف: «كِلاهُما»."
+      },
+      {
+        stage: 4,
+        stageTitle: "المحطة الرابعة: مختبر التصويب النحوي لفارسات الثاني عشر",
+        skill: "تصويب توكيد جمع المذكر المرفوع (أجمعون)",
+        prompt: "ما هو التصويب النحوي الصحيح لجملة:\n«نفَّذَ الجنودُ أجمعينَ الخُطةَ»؟",
+        quote: "«نفّذَ الجنودُ أجمعينَ الخُطةَ»",
+        options: [
+          { text: "نفّذ الجنودُ أجمعونَ الخطّةَ (لأن الجنود فاعل مرفوع)", correct: true },
+          { text: "نفّذ الجنود كليهما الخطة", correct: false },
+          { text: "نفّذ الجنود جميعاً الخطة بالرفع", correct: false },
+          { text: "العبارة صحيحة لا تحتاج لتصويب", correct: false }
+        ],
+        explanation: "لفظ «أجمعون» ملحق بجمع المذكر السالم يرفع بالواو وينصب ويجر بالياء، ولما كان مؤكده «الجنودُ» فاعلاً مرفوعاً، وجب رفعه بالواو: «أجمعونَ»."
+      },
+      {
+        stage: 4,
+        stageTitle: "المحطة الرابعة: مختبر التصويب النحوي لفارسات الثاني عشر",
+        skill: "تصويب توكيد المثنى المؤنث المنصوب",
+        prompt: "صوبي الخطأ النحوي في الجملة التالية المعتمدة وزارياً:\n«كرَّمتِ الإدارةُ المُعلّمتينِ كِلْتاهُما»",
+        quote: "«كرّمتِ الإدارةُ المُعلّمتينِ كِلْتاهُما»",
+        options: [
+          { text: "الصواب: كِلْتَيْهِما (لأن المؤكد مفعول به منصوب بالياء)", correct: true },
+          { text: "الصواب: كِلَيْهِما (بحذف تاء التأنيث)", correct: false },
+          { text: "الصواب: كِلاهُما", correct: false },
+          { text: "الصواب: كُلُّهنَّ", correct: false }
+        ],
+        explanation: "المؤكد «المُعلّمتينِ» مفعول به منصوب بالياء لأنه مثنى مؤنث، فيتبعه توكيده «كلتا» بالنصب بالياء: «كِلْتَيْهِما»."
+      },
+
+      // المرحلة الخامسة: قمة الإعراب التفصيلي الشامل
+      {
+        stage: 5,
+        stageTitle: "المحطة الخامسة: عرش الإعراب التفصيلي والشواهد",
+        skill: "إعراب التوكيد المعنوي المجرور",
+        prompt: "ما الإعراب النموذجي المفصل لكلمة «جميعِهم» في قوله:\n«سلَّمتُ على الأصدقاءِ جميعِهم»؟",
+        quote: "«سلّمتُ على الأصدقاءِ جميعِهم»",
+        options: [
+          { text: "توكيد معنوي مجرور وعلامة جره الكسرة الظاهرة، وهم مضاف إليه", correct: true },
+          { text: "نعت مجرور وعلامة جره الكسرة الظاهرة", correct: false },
+          { text: "حال مجرورة بالكسرة", correct: false },
+          { text: "مضاف إليه مجرور بالكسرة", correct: false }
+        ],
+        explanation: "«الأصدقاءِ» اسم مجرور بـ (على)، فيكون «جميعِـ» توكيداً معنوياً مجروراً بالكسرة الظاهرة، والضمير (هم) مبني في محل جر مضاف إليه."
+      },
+      {
+        stage: 5,
+        stageTitle: "المحطة الخامسة: عرش الإعراب التفصيلي والشواهد",
+        skill: "إعراب التوكيد اللفظي في بداية الجملة",
+        prompt: "ما الإعراب الدقيق للكلمة الثانية في قولنا: «اللغةُ اللغةُ هُويّةُ الإنسانِ»؟",
+        quote: "«اللغةُ اللغةُ هُويّةُ الإنسانِ»",
+        options: [
+          { text: "توكيد لفظي مرفوع وعلامة رفعه الضمة الظاهرة على آخره", correct: true },
+          { text: "خبر المبتدأ مرفوع بالضمة الظاهرة", correct: false },
+          { text: "مبتدأ ثانٍ مرفوع بالضمة", correct: false },
+          { text: "نعت مرفوع لكلمة اللغة الأولى", correct: false }
+        ],
+        explanation: "«اللغةُ» الأولى مبتدأ مرفوع بالضمة، و«اللغةُ» الثانية توكيد لفظي يكرر الاسم عينه ويتبعه في الإعراب مرفوعاً بالضمة، بينما «هويةُ» هي الخبر."
+      },
+      {
+        stage: 5,
+        stageTitle: "المحطة الخامسة: عرش الإعراب التفصيلي والشواهد",
+        skill: "معاني التوكيد البلاغية (الشمول وإثبات الخبر)",
+        prompt: "ما فائدة التوكيد المعنوي بـ (كُـلّ) في المعنى: «قرأتُ الكتابَ كلَّـه»؟",
+        quote: "«قرأتُ الكتابَ كلَّـه»",
+        options: [
+          { text: "يفيد الشمول والاستغراق ودفع توهم إرادة البعض", correct: true },
+          { text: "يفيد إثبات صحة الخبر بتكرار الحروف فقط", correct: false },
+          { text: "يفيد إزالة الشك عن المتكلم نفسه", correct: false },
+          { text: "يفيد التقليل والتقريب", correct: false }
+        ],
+        explanation: "التوكيد بـ (كل، جميع، عامة) وظيفته المعنوية والبلاغية الكبرى هي إفادة «الشمول والاستغراق» ورفع أي توهم لقراءة بعض أجزاء الكتاب دون باقيه."
+      }
+    ];
+
+    /* 4. إدارة حالة اللعبة (State Management) */
+    const GameState = {
+      playerName: "فارسة اللغة",
+      score: 0,
+      lives: 3,
+      currentQuestionIndex: 0,
+      correctCount: 0,
+      wrongCount: 0,
+      isAnswered: false,
+
+      reset() {
+        this.score = 0;
+        this.lives = 3;
+        this.currentQuestionIndex = 0;
+        this.correctCount = 0;
+        this.wrongCount = 0;
+        this.isAnswered = false;
+      }
+    };
+
+    /* عناصر الواجهة (DOM Elements) */
+    const UI = {
+      screenWelcome: document.getElementById('screenWelcome'),
+      screenGame: document.getElementById('screenGame'),
+      screenResult: document.getElementById('screenResult'),
+      statsBar: document.getElementById('statsBar'),
+      studentNameInput: document.getElementById('studentNameInput'),
+      btnStartGame: document.getElementById('btnStartGame'),
+      btnDownloadForFlash: document.getElementById('btnDownloadForFlash'),
+
+      playerScore: document.getElementById('playerScore'),
+      playerLives: document.getElementById('playerLives'),
+      stageLabel: document.getElementById('stageLabel'),
+
+      currentStageTitle: document.getElementById('currentStageTitle'),
+      currentQuestionNum: document.getElementById('currentQuestionNum'),
+      totalQuestionsNum: document.getElementById('totalQuestionsNum'),
+      progressBar: document.getElementById('progressBar'),
+
+      badgeSkill: document.getElementById('badgeSkill'),
+      qPoints: document.getElementById('qPoints'),
+      questionPrompt: document.getElementById('questionPrompt'),
+      quoteBox: document.getElementById('quoteBox'),
+      optionsContainer: document.getElementById('optionsContainer'),
+
+      feedbackCard: document.getElementById('feedbackCard'),
+      feedbackIcon: document.getElementById('feedbackIcon'),
+      feedbackTitle: document.getElementById('feedbackTitle'),
+      feedbackExplanation: document.getElementById('feedbackExplanation'),
+      btnNextQuestion: document.getElementById('btnNextQuestion'),
+
+      resPlayerName: document.getElementById('resPlayerName'),
+      resScore: document.getElementById('resScore'),
+      resAccuracy: document.getElementById('resAccuracy'),
+      resRank: document.getElementById('resRank'),
+      resultTitle: document.getElementById('resultTitle'),
+      resultSubtitle: document.getElementById('resultSubtitle'),
+      btnRestartGame: document.getElementById('btnRestartGame'),
+      btnShareCertificate: document.getElementById('btnShareCertificate'),
+      toastMessage: document.getElementById('toastMessage')
+    };
+
+    /* بدء تشغيل اللعبة وتهيئة الأحداث */
+    window.onload = function() {
+      ConfettiEngine.init();
+      UI.totalQuestionsNum.textContent = gameQuestions.length;
+      setupListeners();
+    };
+
+    function setupListeners() {
+      // بدء اللعبة
+      UI.btnStartGame.addEventListener('click', () => {
+        const val = UI.studentNameInput.value.trim();
+        GameState.playerName = val ? val : "فارسة اللغة";
+        startGame();
+      });
+
+      // تنزيل الملف كاملاً لتشغيله عبر الفلاش ميموري بدون إنترنت
+      UI.btnDownloadForFlash.addEventListener('click', () => {
+        downloadOfflinePackage();
+      });
+
+      // زر السؤال التالي
+      UI.btnNextQuestion.addEventListener('click', () => {
+        proceedToNext();
+      });
+
+      // إعادة التحدي
+      UI.btnRestartGame.addEventListener('click', () => {
+        UI.screenResult.classList.add('hidden');
+        UI.screenWelcome.classList.remove('hidden');
+        UI.statsBar.classList.add('hidden');
+      });
+
+      // نسخ شهادة الإنجاز
+      UI.btnShareCertificate.addEventListener('click', () => {
+        copyCertificate();
+      });
+    }
+
+    // تنزيل كود الملف كاملاً كملف index.html جاهز للعمل الفوري بدون نت
+    function downloadOfflinePackage() {
+      const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(blob);
+      downloadLink.download = "واحة_التوكيد_الصف_الثاني_عشر.html";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(downloadLink.href);
+    }
+
+    function startGame() {
+      GameState.reset();
+      updateHeaderStats();
+
+      UI.screenWelcome.classList.add('hidden');
+      UI.screenResult.classList.add('hidden');
+      UI.screenGame.classList.remove('hidden');
+      UI.statsBar.classList.remove('hidden');
+
+      loadQuestion(0);
+    }
+
+    function updateHeaderStats() {
+      UI.playerScore.textContent = GameState.score;
+      UI.playerLives.textContent = GameState.lives;
+      const q = gameQuestions[GameState.currentQuestionIndex] || gameQuestions[0];
+      UI.stageLabel.textContent = `المرحلة ${q.stage}`;
+    }
+
+    function loadQuestion(index) {
+      if (index >= gameQuestions.length) {
+        endGame(true);
+        return;
+      }
+
+      GameState.isAnswered = false;
+      const q = gameQuestions[index];
+
+      UI.currentQuestionNum.textContent = index + 1;
+      UI.currentStageTitle.textContent = q.stageTitle;
+      UI.badgeSkill.textContent = q.skill;
+      UI.questionPrompt.textContent = q.prompt;
+      UI.quoteBox.textContent = q.quote;
+      UI.qPoints.textContent = "100";
+
+      // تحديث شريط التقدم
+      const percent = (index / gameQuestions.length) * 100;
+      UI.progressBar.style.width = `${percent}%`;
+
+      UI.feedbackCard.classList.add('hidden');
+      UI.optionsContainer.innerHTML = '';
+
+      // خلط الخيارات
+      const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+
+      shuffled.forEach((opt, optIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        const arabicLetters = ['أ', 'ب', 'ج', 'د'];
+
+        btn.innerHTML = `
+          <div class="option-marker">${arabicLetters[optIdx] || '•'}</div>
+          <span style="flex:1;">${opt.text}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+          if (!GameState.isAnswered) {
+            handleAnswer(opt, btn, q);
+          }
+        });
+
+        UI.optionsContainer.appendChild(btn);
+      });
+
+      updateHeaderStats();
+    }
+
+    function handleAnswer(chosenOpt, chosenBtn, currentQ) {
+      GameState.isAnswered = true;
+      const allBtns = UI.optionsContainer.querySelectorAll('button');
+      allBtns.forEach(b => b.disabled = true);
+
+      if (chosenOpt.correct) {
+        SoundEffects.correct();
+        ConfettiEngine.fire(45);
+
+        chosenBtn.classList.add('correct-choice');
+        GameState.score += 100;
+        GameState.correctCount++;
+
+        showFeedback(true, currentQ.explanation);
+      } else {
+        SoundEffects.wrong();
+        chosenBtn.classList.add('wrong-choice');
+
+        // توضيح الإجابة الصحيحة للطالبة
+        currentQ.options.forEach(opt => {
+          if (opt.correct) {
+            allBtns.forEach(b => {
+              if (b.innerText.includes(opt.text)) {
+                b.classList.add('correct-choice');
+              }
+            });
+          }
+        });
+
+        GameState.lives--;
+        GameState.wrongCount++;
+
+        showFeedback(false, currentQ.explanation);
+      }
+
+      updateHeaderStats();
+
+      // التحقق من انتهاء الأرواح
+      if (GameState.lives <= 0) {
+        setTimeout(() => endGame(false), 2400);
+      }
+    }
+
+    function showFeedback(isCorrect, explanation) {
+      UI.feedbackCard.classList.remove('hidden');
+
+      if (isCorrect) {
+        UI.feedbackCard.className = 'feedback-panel success';
+        UI.feedbackTitle.textContent = 'إجابة نموذجية ومطابقة لقواعد التوكيد! ✨';
+        UI.feedbackIcon.innerHTML = `<svg class="svg-icon" style="color:#34d399;" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/></svg>`;
+      } else {
+        UI.feedbackCard.className = 'feedback-panel danger';
+        UI.feedbackTitle.textContent = 'تذكري هذه القاعدة الهامة يا فارستنا:';
+        UI.feedbackIcon.innerHTML = `<svg class="svg-icon" style="color:#fb7185;" viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" fill="currentColor"/></svg>`;
+      }
+
+      UI.feedbackExplanation.textContent = explanation;
+    }
+
+    function proceedToNext() {
+      GameState.currentQuestionIndex++;
+      if (GameState.currentQuestionIndex < gameQuestions.length && GameState.lives > 0) {
+        loadQuestion(GameState.currentQuestionIndex);
+      } else {
+        endGame(GameState.lives > 0);
+      }
+    }
+
+    function endGame(isSuccess) {
+      SoundEffects.victory();
+      if (isSuccess) {
+        ConfettiEngine.fire(90);
+      }
+
+      UI.screenGame.classList.add('hidden');
+      UI.screenResult.classList.remove('hidden');
+
+      const total = gameQuestions.length;
+      const acc = Math.round((GameState.correctCount / total) * 100);
+
+      UI.resPlayerName.textContent = GameState.playerName;
+      UI.resScore.textContent = `${GameState.score} نقطة`;
+      UI.resAccuracy.textContent = `${acc}%`;
+
+      let rank = "فارسة النحو الصاعدة";
+      if (acc >= 90) rank = "ملكة التوكيد وفارسة الصف الثاني عشر 👑";
+      else if (acc >= 75) rank = "أميرة الفصاحة والبيان 🌟";
+      else if (acc >= 60) rank = "فارسة القواعد المتميزة 🗡️";
+
+      UI.resRank.textContent = rank;
+
+      if (isSuccess) {
+        UI.resultTitle.textContent = `مبارك التتويج يا ${GameState.playerName}! 🎉`;
+        UI.resultSubtitle.textContent = `لقد أتممتِ بنجاح كافة محطات واحة التوكيد بحصيلة معرفية ونحوية عالية تليق بطالبة متميزة في الصف الثاني عشر.`;
+      } else {
+        UI.resultTitle.textContent = `محاولة شجاعة يا ${GameState.playerName}! 🛡️`;
+        UI.resultSubtitle.textContent = `نفدت الأرواح المتاحة، ولكن مراجعة القواعد هي سر التفوق دائماً. راجعي التعليلات النحوية وانطلقي مجدداً!`;
+      }
+    }
+
+    function copyCertificate() {
+      const acc = Math.round((GameState.correctCount / gameQuestions.length) * 100);
+      const text = `📜 بطاقة إنجاز نشاط التوكيد النحوي (الصف الثاني عشر):\n` +
+                   `الفارسة البطلة: ${GameState.playerName}\n` +
+                   `الدرجة المكتسبة: ${GameState.score} نقطة\n` +
+                   `دقة الإجابات: ${acc}%\n` +
+                   `الرتبة اللغوية: ${UI.resRank.textContent}\n` +
+                   `تم إتقان تدريبات التوكيد اللفظي والمعنوي، الضبط، والإعراب التفصيلي بنجاح.`;
+
+      const tArea = document.createElement("textarea");
+      tArea.value = text;
+      document.body.appendChild(tArea);
+      tArea.select();
+      try {
+        document.execCommand('copy');
+        UI.toastMessage.classList.remove('hidden');
+        setTimeout(() => UI.toastMessage.classList.add('hidden'), 3500);
+      } catch(e) {}
+      document.body.removeChild(tArea);
+    }
+  </script>
+
+</body></html>
